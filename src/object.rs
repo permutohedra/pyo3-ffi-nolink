@@ -19,12 +19,7 @@ pub use crate::cpython::object::PyTypeObject;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[cfg(all(
-    target_pointer_width = "64",
-    Py_3_14,
-    not(Py_GIL_DISABLED),
-    target_endian = "big"
-))]
+#[cfg(all(Py_3_14, not(Py_GIL_DISABLED), target_endian = "big"))]
 /// This struct is anonymous in CPython, so the name was given by PyO3 because
 /// Rust structs need a name.
 pub struct PyObjectObFlagsAndRefcnt {
@@ -35,12 +30,7 @@ pub struct PyObjectObFlagsAndRefcnt {
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[cfg(all(
-    target_pointer_width = "64",
-    Py_3_14,
-    not(Py_GIL_DISABLED),
-    target_endian = "little"
-))]
+#[cfg(all(Py_3_14, not(Py_GIL_DISABLED), target_endian = "little"))]
 /// This struct is anonymous in CPython, so the name was given by PyO3 because
 /// Rust structs need a name.
 pub struct PyObjectObFlagsAndRefcnt {
@@ -152,13 +142,13 @@ pub struct PyVarObject {
 // skipped private _PyVarObject_CAST
 
 #[inline]
-#[cfg(not(any(GraalPy, PyPy)))]
+#[cfg(not(any(GraalPy, all(PyPy, Py_3_10))))]
 #[cfg_attr(docsrs, doc(cfg(all())))]
 pub unsafe fn Py_Is(x: *mut PyObject, y: *mut PyObject) -> c_int {
     (x == y).into()
 }
 
-#[cfg(any(GraalPy, PyPy))]
+#[cfg(any(GraalPy, all(PyPy, Py_3_10)))]
 #[cfg_attr(docsrs, doc(cfg(all())))]
 extern "C" {
     #[cfg_attr(PyPy, link_name = "PyPy_Is")]
