@@ -1,9 +1,6 @@
 use crate::{PyGetSetDef, PyMethodDef, PyObject, PyTypeObject};
 use std::ffi::{c_char, c_int, c_void};
 
-#[cfg(Py_3_11)]
-use crate::PyMemberDef;
-
 pub type wrapperfunc = Option<
     unsafe extern "C" fn(
         slf: *mut PyObject,
@@ -56,10 +53,7 @@ pub struct PyMethodDescrObject {
 #[repr(C)]
 pub struct PyMemberDescrObject {
     pub d_common: PyDescrObject,
-    #[cfg(not(Py_3_11))]
     pub d_member: *mut PyGetSetDef,
-    #[cfg(Py_3_11)]
-    pub d_member: *mut PyMemberDef,
 }
 
 #[repr(C)]

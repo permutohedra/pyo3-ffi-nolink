@@ -73,13 +73,6 @@ extern "C" {
         key: *mut PyObject,
         result: *mut *mut PyObject,
     ) -> c_int;
-    #[cfg(Py_3_13)]
-    #[cfg_attr(PyPy, link_name = "PyPyDict_GetItemStringRef")]
-    pub fn PyDict_GetItemStringRef(
-        dp: *mut PyObject,
-        key: *const c_char,
-        result: *mut *mut PyObject,
-    ) -> c_int;
     // skipped 3.10 / ex-non-limited PyObject_GenericGetDict
 }
 
@@ -92,17 +85,17 @@ extern "C" {
 
 #[inline]
 pub unsafe fn PyDictKeys_Check(op: *mut PyObject) -> c_int {
-    PyObject_TypeCheck(op, addr_of_mut!(PyDictKeys_Type))
+    (Py_TYPE(op) == addr_of_mut!(PyDictKeys_Type)) as c_int
 }
 
 #[inline]
 pub unsafe fn PyDictValues_Check(op: *mut PyObject) -> c_int {
-    PyObject_TypeCheck(op, addr_of_mut!(PyDictValues_Type))
+    (Py_TYPE(op) == addr_of_mut!(PyDictValues_Type)) as c_int
 }
 
 #[inline]
 pub unsafe fn PyDictItems_Check(op: *mut PyObject) -> c_int {
-    PyObject_TypeCheck(op, addr_of_mut!(PyDictItems_Type))
+    (Py_TYPE(op) == addr_of_mut!(PyDictItems_Type)) as c_int
 }
 
 #[inline]
@@ -123,6 +116,6 @@ extern "C" {
     pub static mut PyDictRevIterItem_Type: PyTypeObject;
 }
 
-#[cfg(any(GraalPy, Py_LIMITED_API))]
+#[cfg(any(PyPy, GraalPy, Py_LIMITED_API))]
 // TODO: remove (see https://github.com/PyO3/pyo3/pull/1341#issuecomment-751515985)
 opaque_struct!(pub PyDictObject);
