@@ -1,5 +1,5 @@
-use crate::object::*;
 use crate::PyFrameObject;
+use crate::object::*;
 #[cfg(all(Py_3_11, not(any(PyPy, GraalPy, Py_3_14))))]
 use core::ffi::c_char;
 use core::ffi::c_int;
@@ -60,9 +60,6 @@ extern_libpython! {
     // skipped _PyGen_FetchStopIterationValue
     // skipped _PyGen_yf
     // skipped _PyGen_Finalize
-    #[cfg(not(any(Py_3_9, PyPy)))]
-    #[deprecated(note = "This function was never documented in the Python API.")]
-    pub fn PyGen_NeedsFinalizing(op: *mut PyGenObject) -> c_int;
 }
 
 // skipped PyCoroObject

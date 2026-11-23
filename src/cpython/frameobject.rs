@@ -1,10 +1,10 @@
 #[cfg(not(GraalPy))]
-use crate::object::*;
-#[cfg(not(GraalPy))]
 use crate::PyCodeObject;
 use crate::PyFrameObject;
 #[cfg(not(GraalPy))]
 use crate::PyThreadState;
+#[cfg(not(GraalPy))]
+use crate::object::*;
 #[cfg(not(any(PyPy, GraalPy, Py_3_11)))]
 use core::ffi::c_char;
 use core::ffi::c_int;
@@ -45,7 +45,4 @@ extern_libpython! {
     pub fn PyFrame_FastToLocals(f: *mut PyFrameObject);
 
     // skipped _PyFrame_DebugMallocStats
-
-    #[cfg(not(Py_3_9))]
-    pub fn PyFrame_ClearFreeList() -> c_int;
 }

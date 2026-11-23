@@ -41,7 +41,7 @@
 //! PyO3 uses `rustc`'s `--cfg` flags to enable or disable code used for different Python versions.
 //! If you want to do this for your own crate, you can do so with the [`pyo3-build-config`] crate.
 //!
-//! - `Py_3_8`, `Py_3_9`, `Py_3_10`, `Py_3_11`, `Py_3_12`, `Py_3_13`, `Py_3_14`, `Py_3_15`: Marks code that is
+//! - `Py_3_9`, `Py_3_10`, `Py_3_11`, `Py_3_12`, `Py_3_13`, `Py_3_14`, `Py_3_15`: Marks code that is
 //!    only enabled when compiling for a given minimum Python version.
 //! - `Py_LIMITED_API`: Marks code enabled when the `abi3` feature flag is enabled.
 //! - `Py_GIL_DISABLED`: Marks code that runs only in the free-threaded build of CPython.
@@ -78,7 +78,7 @@
 //! # Minimum supported Rust and Python versions
 //!
 //! `pyo3-ffi` supports the following Python distributions:
-//!   - CPython 3.8 or greater
+//!   - CPython 3.9 or greater
 //!   - PyPy 7.3 (Python 3.11+)
 //!   - GraalPy 24.0 or greater (Python 3.10+)
 //!
@@ -201,14 +201,14 @@
 //! // The module initialization function
 //! #[cfg(not(Py_3_15))]
 //! #[allow(non_snake_case, reason = "must be named `PyInit_<your_module>`")]
-//! #[no_mangle]
+//! #[unsafe(no_mangle)]
 //! pub unsafe extern "C" fn PyInit_string_sum() -> *mut PyObject {
 //!     PyModuleDef_Init(&raw mut MODULE_DEF)
 //! }
 //!
 //! #[cfg(Py_3_15)]
 //! #[allow(non_snake_case, reason = "must be named `PyModExport_<your_module>`")]
-//! #[no_mangle]
+//! #[unsafe(no_mangle)]
 //! pub unsafe extern "C" fn PyModExport_string_sum() -> *mut PySlot {
 //!     (&raw mut SLOTS).cast()
 //! }
@@ -430,8 +430,9 @@ pub const fn _cstr_from_utf8_with_nul_checked(s: &str) -> &core::ffi::CStr {
 }
 
 // Macros for declaring `extern` blocks that link against libpython.
-// See `impl_/macros.rs` for the implementation.
-include!("impl_/macros.rs");
+#[path = "impl_/macros.rs"]
+#[macro_use]
+mod macros;
 
 pub mod compat;
 mod impl_;
@@ -446,8 +447,6 @@ pub use self::ceval::*;
 pub use self::codecs::*;
 pub use self::compile::*;
 pub use self::complexobject::*;
-#[cfg(not(Py_LIMITED_API))]
-pub use self::context::*;
 #[cfg(Py_3_13)]
 pub use self::critical_section::*;
 #[cfg(not(Py_LIMITED_API))]
@@ -459,7 +458,6 @@ pub use self::enumobject::*;
 pub use self::fileobject::*;
 pub use self::fileutils::*;
 pub use self::floatobject::*;
-#[cfg(Py_3_9)]
 pub use self::genericaliasobject::*;
 pub use self::import::*;
 pub use self::intrcheck::*;
@@ -487,6 +485,7 @@ pub use self::pyport::*;
 pub use self::pystate::*;
 pub use self::pystrtod::*;
 pub use self::pythonrun::*;
+pub use self::pythread::*;
 pub use self::pytypedefs::*;
 pub use self::rangeobject::*;
 pub use self::refcount::*;
@@ -517,8 +516,6 @@ mod ceval;
 mod codecs;
 mod compile;
 mod complexobject;
-#[cfg(not(Py_LIMITED_API))]
-mod context;
 mod critical_section;
 #[cfg(not(Py_LIMITED_API))]
 pub(crate) mod datetime;
@@ -579,7 +576,7 @@ mod pythonrun;
 // skipped pystrhex.h
 // skipped pystrcmp.h
 mod pystrtod;
-// skipped pythread.h
+mod pythread;
 // skipped pytime.h
 mod pytypedefs;
 mod rangeobject;
